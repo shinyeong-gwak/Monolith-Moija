@@ -1,5 +1,6 @@
 package com.example.monolithmoija.entities;
 
+import com.example.monolithmoija.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 

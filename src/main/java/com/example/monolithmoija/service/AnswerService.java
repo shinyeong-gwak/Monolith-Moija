@@ -1,5 +1,6 @@
 package com.example.monolithmoija.service;
 
+import com.example.monolithmoija.mongo.AnswerRepository;
 import com.example.monolithmoija.mongo_entity.Answer;
 import com.example.monolithmoija.global.BaseException;
 import lombok.NoArgsConstructor;

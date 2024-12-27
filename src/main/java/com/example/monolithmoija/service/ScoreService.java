@@ -1,6 +1,6 @@
 package com.example.monolithmoija.service;
 
-import com.example.monolithmoija.entity.Score;
+import com.example.monolithmoija.entities.Score;
 import com.example.monolithmoija.repository.ScoreRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

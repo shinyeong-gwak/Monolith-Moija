@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -42,6 +43,7 @@ public class PostService {
     private final SporeService sporeService;
     private final GCSService gcsService;
     private final MemberService memberService;
+
     public void writePost(PostReq.PostWriteReq postWriteReq, List<MultipartFile> images, Long postId,String userId) throws BaseException, IOException, NoSuchAlgorithmException, InvalidKeyException {
         Recruit recruit;
         //수정일때는 어떤 것을 할지
@@ -145,7 +147,7 @@ public class PostService {
         recruit.setNumCondition(postWriteReq.getNumCondition());
         return recruit;
     }
-    public Page<PostRes.ListPostRes> pageList(Optional<String> category, String view_type, Optional<String> keyword, Optional<String> searchType, Optional<String> userId,int pageNo)
+    public Page<PostRes.ListPostRes> pagePage(Optional<String> category, String view_type, Optional<String> keyword, Optional<String> searchType, Optional<String> userId,int pageNo)
             throws BaseException {
         switch (view_type) {
             case "most_view" -> view_type = "views";
@@ -157,6 +159,19 @@ public class PostService {
         List<PostRes.ListPostRes> recruitList = list(category,view_type,keyword,searchType,userId,pageable);
         return new PageImpl<>(recruitList,pageable,recruitList.size());
     }
+    //sy-gwak today
+    public List<PostRes.ListPostRes> pageList(Optional<String> category, String view_type, Optional<String> keyword, Optional<String> searchType, Optional<String> userId,int pageNo)
+            throws BaseException {
+        switch (view_type) {
+            case "most_view" -> view_type = "views";
+            case "most_like" -> view_type = "likes";
+            default -> view_type = "latestWrite";
+        }
+        Sort sort = Sort.by(Sort.Direction.DESC, view_type);
+        Pageable pageable = PageRequest.of(pageNo,PAGE_SIZE, sort);
+        List<PostRes.ListPostRes> recruitList = list(category,view_type,keyword,searchType,userId,pageable);
+        return recruitList;
+    }
 
     public List<PostRes.ListPostRes> list(Optional<String> category, String view_type, Optional<String> keyword, Optional<String> searchType, Optional<String> userId,Pageable pageable) throws BaseException {
         List<Recruit> recruitList = new ArrayList<>();
@@ -166,8 +181,8 @@ public class PostService {
             recruitList.addAll(recruitRepository.findAllByLeaderIdAndIsAvailableTrueAndStateRecruitFalse(s,pageable).getContent());
         });
         category.ifPresent(s -> {
-            recruitList.addAll(recruitRepository.findAllByCategoryContainingAndIsAvailableTrueAndStateRecruitTrue(s.equals("all")?"":s,pageable).getContent());
-            recruitList.addAll(recruitRepository.findAllByCategoryContainingAndIsAvailableTrueAndStateRecruitFalse(s.equals("all")?"":s,pageable).getContent());
+            recruitList.addAll(recruitRepository.findAllByCategoryContainingAndIsAvailableTrueAndStateRecruitTrue(s.equals("all")?"":s));//,pageable).getContent());
+            recruitList.addAll(recruitRepository.findAllByCategoryContainingAndIsAvailableTrueAndStateRecruitFalse(s.equals("all")?"":s));//,pageable).getContent());
 
         });
         //아직 키워드 정렬 안됨.!!!!!!!!!!!1
@@ -186,10 +201,10 @@ public class PostService {
             }
         });
 
-        if(recruitList.size() > 10) {
-            return makeList( new PageImpl<>(recruitList, pageable, recruitList.size()).getContent() );
-
-        }
+//        if(recruitList.size() > 10) {
+//            return makeList( new PageImpl<>(recruitList, pageable, recruitList.size()).getContent() );
+//
+//        }
 
 
         if(recruitList.isEmpty()) {

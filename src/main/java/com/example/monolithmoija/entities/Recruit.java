@@ -1,7 +1,9 @@
 package com.example.monolithmoija.entities;
 
+import com.example.monolithmoija.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.BatchSize;
 
 import java.sql.Timestamp;
 
@@ -12,6 +14,7 @@ import java.sql.Timestamp;
 @Table(name = "recruit")
 @AllArgsConstructor
 @NoArgsConstructor
+@BatchSize(size = 10)
 public class Recruit {
 
     @Id

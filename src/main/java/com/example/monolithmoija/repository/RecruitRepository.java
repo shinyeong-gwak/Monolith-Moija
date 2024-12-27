@@ -38,7 +38,8 @@ public interface RecruitRepository extends JpaRepository<Recruit,Long> {
     @Query(value="update Recruit r set r.isAvailable=false where r.recruitId = :recruitId")
     Integer notAvailable(@Param("recruitId") Long recruitId);
 
-    Optional<Recruit> findByRecruitIdAndIsAvailableTrue(Long Id);
+    //sy-gwak today
+    Optional<Recruit> findByRecruitIdAndIsAvailableTrue(@Param("recruitId") Long Id);
     @Query("SELECT r.title FROM Recruit r WHERE r.recruitId = :recruitId AND r.isAvailable = true")
     Optional<String> findTitleByRecruitIdAndIsAvailableTrue(@Param("recruitId") Long Id);
     Optional<Recruit> findByRecruitId(Long Id);
@@ -48,8 +49,9 @@ public interface RecruitRepository extends JpaRepository<Recruit,Long> {
     List<Recruit> findAllByLeaderId(String leaderId);
     List<Recruit> findAllByIsAvailableTrueOrderByStateRecruitDescLatestWriteDesc();
     List<Recruit> findAllByCategoryAndIsAvailableTrueOrderByStateRecruit(String category);
-    Page<Recruit> findAllByCategoryContainingAndIsAvailableTrueAndStateRecruitTrue(String category, Pageable pageable);
-    Page<Recruit> findAllByCategoryContainingAndIsAvailableTrueAndStateRecruitFalse(String category, Pageable pageable);
+    // sy-gwak today
+    List<Recruit> findAllByCategoryContainingAndIsAvailableTrueAndStateRecruitTrue(String category);//, Pageable pageable);
+    List<Recruit> findAllByCategoryContainingAndIsAvailableTrueAndStateRecruitFalse(String category);//, Pageable pageable);
 
     //user 체크하기 위함
     @Query("SELECT r.leaderId FROM Recruit r WHERE r.recruitId = :recruitId")

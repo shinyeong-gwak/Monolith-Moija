@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -43,12 +45,13 @@ public class PostController {
     public BaseResponse<Void> writePost(
             @RequestPart(value = "image",required = false) List<MultipartFile> images,
             @RequestPart(value = "write") PostReq.PostWriteReq postWriteReq,
-            @RequestPart(value = "userId") String userId
-            //,@AuthenticationPrincipal String userId
-    ) throws BaseException, IOException, NoSuchAlgorithmException, InvalidKeyException {
-        if(userId == null)
+            //@RequestPart(value = "userId") String userId
+            @AuthenticationPrincipal UserDetails account
+            ) throws BaseException, IOException, NoSuchAlgorithmException, InvalidKeyException {
+        String userId = account.getUsername();
+        if(userId == null) {
             throw new BaseException(LOGIN_FIRST);
-        if(images == null) {
+        }if(images == null) {
             images = new ArrayList<>();
         }else if(images.size() > 5) {
             throw new BaseException(NUM_FILE_OVER);
@@ -64,8 +67,9 @@ public class PostController {
             @PathVariable(name="postId") Long postId,
             @RequestPart(value = "image",required = false) List<MultipartFile> images,
             @RequestPart(value = "write") PostReq.PostWriteReq postWriteReq,
-            @RequestPart(value = "userId") String userId
+            @AuthenticationPrincipal UserDetails account
     ) throws BaseException, IOException, NoSuchAlgorithmException, InvalidKeyException {
+        String userId = account.getUsername();
         if(userId == null)
             throw new BaseException(LOGIN_FIRST);
         if(images == null) {
@@ -80,8 +84,9 @@ public class PostController {
     @DeleteMapping("/delete/{postId}")
     public BaseResponse<Void> deletePost(
             @PathVariable(name="postId") Long postId,
-            @RequestPart(value = "userId") String userId
+            @AuthenticationPrincipal UserDetails account
     ) throws BaseException, IOException {
+        String userId = account.getUsername();
         if(userId == null)
             throw new BaseException(LOGIN_FIRST);
         postService.remove(userId, postId);
@@ -96,14 +101,14 @@ public class PostController {
             @RequestParam(value = "search_type",required = false,defaultValue = "title") String searchType,
             @RequestParam(required = false, defaultValue = "0", value = "page") int pageNo
     ) throws BaseException, IOException {
-        Page<PostRes.ListPostRes> response = postService.pageList(
+        List<PostRes.ListPostRes> response = postService.pageList(
                 Optional.of(category),
                 viewType,
                 Optional.ofNullable(keyword),
                 Optional.of(searchType),
                 Optional.empty(),
                 pageNo);
-        return new BaseResponse(response.getContent());
+        return new BaseResponse(response);//.getContent());
     }
 
     @GetMapping("/page")
@@ -116,8 +121,9 @@ public class PostController {
     @PostMapping("/page")
     public BaseResponse<PostRes.ReadPostRes> viewPostAuth(
             @RequestParam(value = "post_id") Long postId,
-            @RequestParam(value = "user_id") String userId
+            @AuthenticationPrincipal UserDetails account
     ) throws BaseException, IOException {
+        String userId = account.getUsername();
         //System.out.println(userId);
         PostRes.ReadPostRes response = postService.view(postId,Optional.of(userId));
         return new BaseResponse<>(response);
@@ -128,8 +134,10 @@ public class PostController {
     @PostMapping("/like")
     public BaseResponse<Void> likePost(
             @RequestPart(name = "req") PostReq.PostLikeReq postLikeReq,
-            @RequestPart(name = "userId") String userId
+            @AuthenticationPrincipal UserDetails account
+            //@RequestPart(name = "userId") String userId
     ) throws BaseException, IOException {
+        String userId = account.getUsername();
         if(userId == null)
             throw new BaseException(LOGIN_FIRST);
         if(!postService.existPost(postLikeReq.getRecruitId())) {
@@ -142,8 +150,10 @@ public class PostController {
     @PostMapping("/clip")
     public BaseResponse<Void> clipPost(
             @RequestPart(name = "req") PostReq.PostClipReq postClipReq,
-            @RequestPart(name = "userId") String userId
+            @AuthenticationPrincipal UserDetails account
+            //@RequestPart(name = "userId") String userId
     ) throws BaseException, IOException {
+        String userId = account.getUsername();
         if(userId == null)
             throw new BaseException(LOGIN_FIRST);
         clipService.userPostClip(postClipReq,userId);
@@ -153,8 +163,9 @@ public class PostController {
     @PostMapping("/question/{postId}")
     public BaseResponse<List> viewQuestion(
             @PathVariable(name="postId") Long postId,
-            @RequestBody String userId
+            @AuthenticationPrincipal UserDetails account
     ) throws BaseException, IOException {
+        String userId = account.getUsername();
         if(userId == null)
             throw new BaseException(LOGIN_FIRST);
         if(!postService.existPost(postId))
@@ -169,8 +180,9 @@ public class PostController {
     public BaseResponse<Void> writeAnswer(
             @PathVariable(name = "postId") Long postId,
             @RequestPart(value = "req") PostReq.PostWaitingReq postWaitingReq,
-            @RequestPart(value = "userId") String userId
+            @AuthenticationPrincipal UserDetails account
     ) throws BaseException, IOException {
+        String userId = account.getUsername();
         if(userId == null)
             throw new BaseException(LOGIN_FIRST);
         postService.inWaitingQueue(postWaitingReq,postId,userId);
@@ -180,8 +192,9 @@ public class PostController {
     @PostMapping("/renew/{postId}")
     public BaseResponse<Void> renew(
             @PathVariable(name = "postId") Long postId,
-            @RequestBody String userId
+            @AuthenticationPrincipal UserDetails account
     ) throws BaseException, IOException {
+        String userId = account.getUsername();
         if(userId == null)
             throw new BaseException(LOGIN_FIRST);
         postService.renew(postId,userId);
@@ -190,16 +203,18 @@ public class PostController {
     @PostMapping("/stop/{postId}")
     public BaseResponse<Void> stopRecruit(
             @PathVariable(value = "postId") Long postId,
-            @RequestBody String userId
+            @AuthenticationPrincipal UserDetails account
     ) throws BaseException {
+        String userId = account.getUsername();
         postService.stateRecruit(postId,false,userId);
         return new BaseResponse<>(SUCCESS);
     }
     @PostMapping("/start/{postId}")
     public BaseResponse<Void> startRecruit(
             @PathVariable(value = "postId") Long postId,
-            @RequestBody String userId
+            @AuthenticationPrincipal UserDetails account
     ) throws BaseException {
+        String userId = account.getUsername();
         postService.stateRecruit(postId,true,userId);
         return new BaseResponse<>(SUCCESS);
     }
@@ -208,8 +223,9 @@ public class PostController {
     public BaseResponse<Void> grantPost(
             @PathVariable(value = "postId") Long postId,
             @RequestPart(value = "score") String score,
-            @RequestPart(value = "userId") String userId
+            @AuthenticationPrincipal UserDetails account
             ) throws BaseException {
+        String userId = account.getUsername();
         postService.grantPost(postId, userId, Float.parseFloat( score) );
         return new BaseResponse<Void>(SUCCESS);
     }

@@ -1,6 +1,7 @@
 package com.example.monolithmoija.entities;
 
 import com.example.monolithmoija.dto.MypageRes;
+import com.example.monolithmoija.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 

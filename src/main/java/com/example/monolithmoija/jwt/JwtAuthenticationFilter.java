@@ -33,7 +33,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             // 액세스토큰 가지고 왔니????
             String token = resolveAccessToken(request);
-
             // 유효성 검사해서 넘길지 말지
             try {
                 if (token != null && jwtTokenProvider.validateToken(token)) {
@@ -43,7 +42,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     authentication.getAuthorities().forEach(GrantedAuthority::getAuthority);
                     chain.doFilter(request, response);//재귀 아니고 chain에 있는 함수!!!!!!!!!
                 }else {
-
                     chain.doFilter(request,response);
                 }
                 //provider 120번째줄 인근에서 던진 exception을 받아서

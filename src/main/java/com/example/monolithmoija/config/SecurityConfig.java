@@ -36,7 +36,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(request -> request
                         // 해당 API에 대해서는 모든 요청을 허가
-                        .requestMatchers(HttpMethod.GET,"/post/list","/post/page","/post/title/**","/user/verify-email**").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/post/list","/post/page","/post/title/**","/user/verify-email**","/test/**","/stomp/**").permitAll()
                         .requestMatchers(HttpMethod.POST,"/user/login","/user/join").permitAll()
                         // USER 권한이 있어야 요청할 수 있음
                         .requestMatchers(HttpMethod.PATCH, "/my/**").hasRole("USER")

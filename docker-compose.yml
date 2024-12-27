@@ -1,0 +1,67 @@
+version: '3'
+services:
+  spring-app:
+    image: shinyenggwak/monolithmoija:0.0.4
+    networks:
+      - my_network
+    ports:
+      - "0.0.0.0:8100:8100"
+    environment:
+      - DATA_MONGODB_URL=mongodb://root:3322@mongo:27017/moija?authSource=admin&authMechanism=SCRAM-SHA-1
+      - DATANAME=root
+      - DATAPASSWORD=3322
+      - DATAURL=jdbc:mariadb://maria:3306/moija?useUnicode=true&characterEncoding=utf8
+      - DOMAIN_NAME=moija.site
+      - EMAIL_ENCODE=MzMyMjU2N21vaWphY29kZSFA
+      - EMAIL_PW=thvypthmegyjnnsi
+      - JWT_SECRET=314bd2debba25c49f1dc82710d6847ae0b500e8a84179c712b26cf6215019a90
+      - RABBITMQ_HOST=rabbitmqq
+      - RABBITMQ_ID=moija
+      - RABBITMQ_PASSWORD=33223322
+      - SECU_PW=1234
+      - REDIS_HOST=redis
+  rabbitmqq:
+    image: rabbitmq
+    networks:
+      - my_network
+    ports:
+      - "5672:5672"
+      - "0.0.0.0:15672:15672"
+      - "61613:61613"
+    environment:
+      RABBITMQ_DEFAULT_USER: "moija"
+      RABBITMQ_DEFAULT_PASS: "33223322"
+      RABBITMQ_PLUGINS: "rabbitmq_stomp rabbitmq_management"
+    volumes:
+      # - ./.docker/rabbitmq/etc/:/etc/rabbitmq/ - rabbitmq plugins 바로 적용하려면 저 경로를 마운트하면 안됨.
+      - ./.docker/rabbitmq/data/:/var/lib/rabbitmq/
+      - ./.docker/rabbitmq/logs/:/var/log/rabbitmq/
+  mongo:
+    image: "mongo"
+    networks:
+      - my_network
+    ports:
+      - "27018:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=3322
+  maria:
+    image: "mariadb"
+    networks:
+      - my_network
+    ports:
+      - "3310:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=3322
+      - MYSQL_DATABASE=moija
+  redis:
+    image: redis:latest
+    networks:
+      - my_network
+    ports:
+      - "6377:6379"
+    environment:
+      - REDIS_PASSWORD=33223322
+
+networks:
+  my_network:

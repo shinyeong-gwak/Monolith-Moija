@@ -45,6 +45,7 @@ public class JwtTokenProvider {
      * */
 
     //객체 생성 -> 비밀키를 적당한 객체로 만들어서 필드로 저장
+
     public JwtTokenProvider(@Value("${jwt.secret}") String secretKey) {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         this.key = Keys.hmacShaKeyFor(keyBytes);
@@ -68,7 +69,7 @@ public class JwtTokenProvider {
     }
     private String doGenerateAccessToken(String id, Map<String,Object> claims){
         long now = (new Date()).getTime();
-        Date accessTokenExpiresIn = new Date(now + 240000);//4분 60*4*1000
+        Date accessTokenExpiresIn = new Date(now + 240000*15);//4분 60*4*1000 * 15 1시간
         return Jwts.builder()
                 .setHeaderParam("type","jwt")
                 //내 도메인 넣어서 어디용인지 설정
@@ -144,6 +145,8 @@ public class JwtTokenProvider {
             System.out.println("내 토큰 아니야");
         } catch (IllegalArgumentException e) {
             System.out.println("클레임이 비어있어.");
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
         }
         return false;
     }

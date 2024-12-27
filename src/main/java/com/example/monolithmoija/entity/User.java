@@ -14,7 +14,7 @@ import java.time.LocalDate;
 @Table(name = "user")
 @NoArgsConstructor
 @AllArgsConstructor
-public class User{
+public class User {
 
     @Id
     @Column(name = "user_id", nullable = false)

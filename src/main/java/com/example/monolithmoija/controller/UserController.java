@@ -54,9 +54,9 @@ public class UserController {
     public BaseResponse<Void> signOut(
             HttpServletRequest request,
             HttpServletResponse response,
-            @AuthenticationPrincipal String userId
+            @AuthenticationPrincipal Account account
     ) throws BaseException, ServletException {
-
+        String userId = account.getUsername();
         userService.signOut(request,response);
 
         return new BaseResponse<>(SUCCESS);

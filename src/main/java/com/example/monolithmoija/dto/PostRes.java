@@ -63,9 +63,11 @@ public class PostRes {
         int numCondition;
 
         //유저 관련 정보 전달
-        private String userNickname;
-        @JsonProperty("user_id")
-        private String userId;
+        @JsonProperty("leader_id")
+        private String leaderId;
+
+        @JsonProperty("gender")
+        private String gender;
         @JsonProperty("reliability_user")
         private Float reliabilityUser;
         @JsonProperty("born_in")

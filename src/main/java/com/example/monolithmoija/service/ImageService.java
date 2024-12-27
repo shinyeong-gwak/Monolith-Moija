@@ -1,5 +1,6 @@
 package com.example.monolithmoija.service;
 
+import com.example.monolithmoija.mongo.ImageRepository;
 import com.example.monolithmoija.mongo_entity.Image;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

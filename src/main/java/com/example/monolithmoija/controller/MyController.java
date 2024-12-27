@@ -1,12 +1,14 @@
 package com.example.monolithmoija.controller;
 
 import com.example.monolithmoija.dto.*;
+import com.example.monolithmoija.entity.Account;
 import com.example.monolithmoija.global.BaseException;
 import com.example.monolithmoija.global.BaseResponse;
 import com.example.monolithmoija.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -34,12 +36,12 @@ public class MyController {
 
     @PostMapping("/team/list")
     public BaseResponse<List> loadTeamList(
-            @RequestBody String userId
+            @AuthenticationPrincipal Account account
     ) throws BaseException {
         //이거 유저는 널이면 로그인 시키는 게 너무 많은거 어떻게 기본적으로 처리할 수 있는지 찾아봐야함.
-        if(userId == null)
+        if(account == null)
             throw new BaseException(LOGIN_FIRST);
-        List<PostRes.ListPostRes> response = myService.loadRecruitList(userId);
+        List<PostRes.ListPostRes> response = myService.loadRecruitList(account.getUsername());
 
         return new BaseResponse<List>(response);
     }
@@ -47,9 +49,9 @@ public class MyController {
     @PostMapping("/member/{postId}")
     public List<MypageRes.MemListRes> loadMemberList(
             @PathVariable(value = "postId") Long postId,
-            @RequestBody String userId
+            @AuthenticationPrincipal Account account
     ) throws BaseException {
-        if(userId == null)
+        if(account == null)
             throw new BaseException(LOGIN_FIRST);
         /**
          * 내가 글의 제작자인지 확인을 하지 않아요~~~~
@@ -63,9 +65,9 @@ public class MyController {
     public BaseResponse<Void> kickMember(
             @PathVariable(value = "postId") Long postId,
             @RequestPart(name = "req") MypageReq.MyKickReq myKickReq,
-            @RequestPart(name = "userId") String userId
+            @AuthenticationPrincipal Account account
     ) throws BaseException {
-        if(userId == null)
+        if(account == null)
             throw new BaseException(LOGIN_FIRST);
         /**
          * 내가 글의 제작자인지 확인을 하지 않아요~~~~
@@ -76,23 +78,23 @@ public class MyController {
     }
     @PostMapping("/waiting/list")
     public BaseResponse<List> loadWaitingList(
-            @RequestBody String userId
+            @AuthenticationPrincipal Account account
     ) throws BaseException{
-        if(userId == null)
+        if(account == null)
             throw new BaseException(LOGIN_FIRST);
-        List<PostRes.ListPostRes> target = myService.loadRecruitList(userId);
+        List<PostRes.ListPostRes> target = myService.loadRecruitList(account.getUsername());
         List<MypageRes.WaitingListRes> response = waitingService.loadWaitingList(target);
         return new BaseResponse<List>(response);
     }
 
     @PostMapping("/send/list")
     public BaseResponse<List> loadSendList(
-            @RequestBody String userId
+            @AuthenticationPrincipal Account account
     ) throws BaseException{
-        if(userId == null)
+        if(account == null)
             throw new BaseException(LOGIN_FIRST);
-        //List<MypageRes.AskListRes> response = waitingService.loadMyRequest(userId);
-        List<PostRes.ListPostRes> myList = myService.loadRecruitList(userId);
+        //List<MypageRes.AskListRes> response = waitingService.loadMyRequest(account.getUsername());
+        List<PostRes.ListPostRes> myList = myService.loadRecruitList(account.getUsername());
         List<MypageRes.AcceptRes> response = myList.stream().map(l -> new MypageRes.AcceptRes(l.getTitle(),l.getPost_id())).toList();
         return new BaseResponse<List>(response);
     }
@@ -100,67 +102,67 @@ public class MyController {
     @PostMapping("/waiting/{waitingId}")
     public BaseResponse<MypageRes.WaitingRes> viewWaiting(
             @PathVariable(value = "waitingId") Long waitingId,
-            @RequestBody String userId
+            @AuthenticationPrincipal Account account
     )throws BaseException {
-        if(userId == null)
+        if(account == null)
             throw new BaseException(LOGIN_FIRST);
         /**
          * 내가 글의 제작자인지 확인을 하지 않아요~~~~
          * 지금 매우 위험한 상태에요~
          */
-        MypageRes.WaitingRes response = waitingService.viewWaiting(waitingId,userId);
+        MypageRes.WaitingRes response = waitingService.viewWaiting(waitingId,account.getUsername());
         return new BaseResponse<>(response);
     }
 
     @PostMapping("/accept/{waitingId}")
     public BaseResponse<Void> acceptWaiting(
             @PathVariable(value = "waitingId") Long waitingId,
-            @RequestBody String userId
+            @AuthenticationPrincipal Account account
     )throws BaseException {
-        if(userId == null)
+        if(account == null)
             throw new BaseException(LOGIN_FIRST);
         /**
          * 내가 글의 제작자인지 확인을 하지 않아요~~~~
          * 지금 매우 위험한 상태에요~
          */
-        waitingService.acceptOrDeny(waitingId,true,userId);
+        waitingService.acceptOrDeny(waitingId,true,account.getUsername());
         return new BaseResponse<>(SUCCESS);
     }
     @PostMapping("/deny/{waitingId}")
     public BaseResponse<Void> denyWaiting(
         @PathVariable(value = "waitingId") Long waitingId,
-        @RequestBody String userId
+        @AuthenticationPrincipal Account account
     )throws BaseException {
-        if(userId == null)
+        if(account == null)
             throw new BaseException(LOGIN_FIRST);
         /**
          * 내가 글의 제작자인지 확인을 하지 않아요~~~~
          * 지금 매우 위험한 상태에요~
          */
-        waitingService.acceptOrDeny(waitingId,false,userId);
+        waitingService.acceptOrDeny(waitingId,false,account.getUsername());
         return new BaseResponse<>(SUCCESS);
     }
 
     @PostMapping("/clip")
     public BaseResponse<List> viewMyClip(
-            @RequestBody String userId
+            @AuthenticationPrincipal Account account
     ) throws BaseException{
-        if(userId == null)
+        if(account == null)
             throw new BaseException(LOGIN_FIRST);
-        List<PostRes.ListPostRes> response = clipService.viewUsersClip(userId);
+        List<PostRes.ListPostRes> response = clipService.viewUsersClip(account.getUsername());
         
         return new BaseResponse<List>(response);
     }
 
     @PostMapping("/joined-team")
     public BaseResponse<List> viewMyJoinTeam(
-            @RequestBody String userId
+            @AuthenticationPrincipal Account account
     ) throws BaseException{
-        if(userId == null)
+        if(account == null)
             throw new BaseException(LOGIN_FIRST);
-        List<PostRes.ListPostRes> response = new ArrayList<>(myService.findBymemberedTeam(userId));
+        List<PostRes.ListPostRes> response = new ArrayList<>(myService.findBymemberedTeam(account.getUsername()));
         //response.forEach(s-> System.out.println("my all team : "+s.getTitle()+" / "+ s.getPost_id()));
-        List<PostRes.ListPostRes> myRecruit = new ArrayList<>(myService.loadRecruitList(userId));
+        List<PostRes.ListPostRes> myRecruit = new ArrayList<>(myService.loadRecruitList(account.getUsername()));
         //myRecruit.forEach(s-> System.out.println("im leader team : "+s.getTitle()+" / "+s.getPost_id()));
         //내가 참여한 모임 - 내가 연 모임 => 내가 조인한 모임
         myRecruit.forEach(l -> response.removeIf(rl -> Objects.equals(rl.getPost_id(), l.getPost_id())));
@@ -171,31 +173,31 @@ public class MyController {
 
     @PostMapping("/profile")
     public BaseResponse<UserRes.ProfileRes> viewMyProfile(
-            @RequestBody String userId
+            @AuthenticationPrincipal Account account
     ) throws BaseException, IOException {
-        if(userId == null)
+        if(account == null)
             throw new BaseException(LOGIN_FIRST);
-        UserRes.ProfileRes response = userService.loadProfile(userId);
+        UserRes.ProfileRes response = userService.loadProfile(account.getUsername());
         return new BaseResponse<>(response);
     }
     @PutMapping(value="/profile/edit/photo",consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public BaseResponse<Void> editPhoto(
             @RequestPart(value = "file") MultipartFile file,
-            @RequestPart(name = "userId") String userId
+            @AuthenticationPrincipal Account account
     ) throws BaseException, IOException, NoSuchAlgorithmException, InvalidKeyException {
-        if(userId == null)
+        if(account == null)
             throw new BaseException(LOGIN_FIRST);
-        userService.saveProfile(file.getOriginalFilename(), file,userId);
+        userService.saveProfile(file.getOriginalFilename(), file,account.getUsername());
         return new BaseResponse<Void>(SUCCESS);
     }
     @PutMapping("/profile/edit/nick")
     public BaseResponse<Void> editNick(
             @RequestPart(name = "req") String newNickname,
-            @RequestPart(name = "userId") String userId
+            @AuthenticationPrincipal Account account
     ) throws BaseException {
-        if(userId == null)
+        if(account == null)
             throw new BaseException(LOGIN_FIRST);
-        userService.editNickname(newNickname,userId);
+        userService.editNickname(newNickname,account.getUsername());
         return new BaseResponse<Void>(SUCCESS);
     }
 

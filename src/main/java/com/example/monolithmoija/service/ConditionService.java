@@ -1,6 +1,7 @@
 package com.example.monolithmoija.service;
 
 import com.example.monolithmoija.dto.QnADTO;
+import com.example.monolithmoija.mongo.ConditionRepository;
 import com.example.monolithmoija.mongo_entity.Condition;
 import com.example.monolithmoija.global.BaseException;
 import lombok.RequiredArgsConstructor;

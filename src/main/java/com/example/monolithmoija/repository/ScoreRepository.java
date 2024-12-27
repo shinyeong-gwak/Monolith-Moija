@@ -1,6 +1,6 @@
 package com.example.monolithmoija.repository;
 
-import com.example.monolithmoija.entity.Score;
+import com.example.monolithmoija.entities.Score;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
